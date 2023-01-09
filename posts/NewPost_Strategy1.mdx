@@ -1,0 +1,52 @@
+---
+title: Что такое TradingView и чем хорошо крипто сообщество?
+description: "TradingView - это сайт (еще есть приложение для Windows), где можно смотреть и анализировать любые графики, не только крипто, но и акции,
+опционы, фьючерсы и вообще все на почти всех маркетах мира. А еще эта платформа дает возможность использовать стратегии и индикаторы других пользовталей. 
+Но что самое интересное для программистов и аналитиков - там можно самим разработывать свои собственные стратегии и индикаторы. Для этого используется 
+специальный язык - Pine Script. Ниже я приведу примеры своих индикаторов, которые создавала на TradingView. "
+date: Jan 09 2023
+---
+
+Может показаться что я пишу на каком то тарабарском языке, но я сейчас буду писать про Squeeze Momentum Indicator, Parabolic SAR и Exponential Moving Average. 
+
+### h2 Индикаторы
+
+- Name: UT bot
+  - Inputs: Sensativity: 3; ATR period: 10
+  - Style: Default
+  - By: TradingView Built-In
+
+- Name: Exponential Moving Average
+  - Inputs: Period: 200
+  - Style: White
+  - By: TradingView Built-In
+
+- Name: Squeeze Momentum Indicator
+  - Inputs: Length 100
+  - Style: White
+  - By: LazyBear
+
+---
+
+[Та самая стратегия в TradingView](/pics/Screenshot_3.png)
+
+### h2 Как это все понимать?
+
+Очень просто :) спроектировано так, что когда индикатор пишет **Buy**, то надо покупать, а когда пишет **Sell** - надо продавать.
+
+## И немного кода для небольшой автоматизации
+
+```js
+//@version=5
+indicator(title='UT Bot with EMA', overlay=true)
+//CREDITS to HPotter for the orginal code. The guy trying to sell this as his own is a scammer lol. 
+src = close
+keyvalue = input.float(3, title='Key Vaule. \'This changes the sensitivity\'', step=.5)
+atrperiod = input(10, title='ATR Period')
+xATR = ta.atr(atrperiod)
+nLoss = keyvalue * xATR
+xATRTrailingStop = 0.0
+iff_1 = src > nz(xATRTrailingStop[1], 0) ? src - nLoss : src + nLoss
+iff_2 = src < nz(xATRTrailingStop[1], 0) and src[1] < nz(xATRTrailingStop[1], 0) ? math.min(nz(xATRTrailingStop[1]), src + nLoss) : iff_1
+xATRTrailingStop := src > nz(xATRTrailingStop[1], 0) and src[1] > nz(xATRTrailingStop[1], 0) ? math.max(nz(xATRTrailingStop[1]), src - nLoss) : iff_2
+```
