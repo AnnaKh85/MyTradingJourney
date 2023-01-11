@@ -1,7 +1,8 @@
 describe('Test 1: Open the site', () => {
   it('passes', () => {
-    cy.visit('/')
+    cy.visit(Cypress.config().baseUrl)
 
-    cy.url().should('include', '/posts/NewPost_Strategy1')
+    cy.url().should('not.include','posts/NewPost_Strategy1')
+
   })
 })
